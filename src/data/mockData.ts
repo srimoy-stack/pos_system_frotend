@@ -1,3 +1,25 @@
+export interface Topping {
+    id: string;
+    name: string;
+    price: number;
+    category: 'veg' | 'non-veg' | 'cheese' | 'sauce';
+    isBaseIngredient?: boolean;
+    tier?: 1 | 2 | 3;
+    stockStatus: 'available' | 'low' | 'out';
+}
+
+export interface PizzaOptions {
+    sizes: { id: string; name: string; priceMultiplier: number; supportedToppingTiers?: number[] }[];
+    crusts: { id: string; name: string; extraPrice: number }[];
+    sauces: { id: string; name: string; extraPrice: number; allowDrizzle?: boolean }[];
+    cheeses: { id: string; name: string; extraPrice: number }[];
+    cookingPreferences: {
+        bakeLevels: string[];
+        cutStyles: string[];
+        sliceCounts: number[];
+    };
+}
+
 export interface Product {
     id: string;
     name: string;
@@ -6,202 +28,184 @@ export interface Product {
     image: string;
     description: string;
     stock: number;
+    stockStatus: 'available' | 'low' | 'out';
+    prepTimeMin: number;
+    isCustomizable?: boolean;
+    baseIngredients?: string[];
+}
+
+export interface OrderTemplate {
+    id: string;
+    name: string;
+    items: { productId: string; customization?: any }[];
+    description: string;
+    price: number;
 }
 
 export const CATEGORIES = [
-    { id: "all", name: "All Items" },
-    { id: "food", name: "Food" },
-    { id: "beverages", name: "Beverages" },
-    { id: "electronics", name: "Electronics" },
-    { id: "clothing", name: "Clothing" },
+    { id: "top-sellers", name: "Top Sellers", icon: "Star" },
+    { id: "veg-pizza", name: "Veg Pizza", icon: "Leaf" },
+    { id: "non-veg-pizza", name: "Non-Veg Pizza", icon: "Flame" },
+    { id: "sides", name: "Sides", icon: "Beef" },
+    { id: "beverages", name: "Beverages", icon: "CupSoda" },
+    { id: "desserts", name: "Desserts", icon: "IceCream" },
+    { id: "bundles", name: "Family Bundles", icon: "Users" },
+];
+
+export const PIZZA_OPTIONS: PizzaOptions = {
+    sizes: [
+        { id: "regular", name: "Regular", priceMultiplier: 1, supportedToppingTiers: [1, 2] },
+        { id: "medium", name: "Medium", priceMultiplier: 1.6, supportedToppingTiers: [1, 2, 3] },
+        { id: "large", name: "Large", priceMultiplier: 2.2, supportedToppingTiers: [1, 2, 3] },
+    ],
+    crusts: [
+        { id: "hand-tossed", name: "New Hand Tossed", extraPrice: 0 },
+        { id: "wheat-thin", name: "Wheat Thin Crust", extraPrice: 1.50 },
+        { id: "cheese-burst", name: "Cheese Burst", extraPrice: 2.50 },
+        { id: "fresh-pan", name: "Fresh Pan Pizza", extraPrice: 1.00 },
+    ],
+    sauces: [
+        { id: "classic", name: "Classic Tomato", extraPrice: 0, allowDrizzle: false },
+        { id: "spicy", name: "Spicy Marinara", extraPrice: 0, allowDrizzle: false },
+        { id: "bbq", name: "Smoky BBQ", extraPrice: 0, allowDrizzle: true },
+        { id: "white", name: "Creamy Alfredo", extraPrice: 0.50, allowDrizzle: true },
+    ],
+    cheeses: [
+        { id: "mozzarella", name: "Mozzarella", extraPrice: 0 },
+        { id: "cheddar", name: "Cheddar", extraPrice: 1.50 },
+        { id: "blend", name: "5-Cheese Blend", extraPrice: 2.50 },
+    ],
+    cookingPreferences: {
+        bakeLevels: ["Light", "Normal", "Well Done"],
+        cutStyles: ["Triangle", "Square", "Uncut"],
+        sliceCounts: [4, 6, 8, 12]
+    }
+};
+
+export const TOPPINGS: Topping[] = [
+    { id: "t1", name: "Onion", price: 0.99, category: "veg", tier: 1, stockStatus: 'available' },
+    { id: "t2", name: "Capsicum", price: 0.99, category: "veg", tier: 1, stockStatus: 'available' },
+    { id: "t3", name: "Tomato", price: 0.99, category: "veg", tier: 1, stockStatus: 'available' },
+    { id: "t4", name: "Mushroom", price: 1.29, category: "veg", tier: 2, stockStatus: 'low' },
+    { id: "t5", name: "Black Olives", price: 1.29, category: "veg", tier: 2, stockStatus: 'available' },
+    { id: "t6", name: "Jalapenos", price: 1.29, category: "veg", tier: 2, stockStatus: 'available' },
+    { id: "t7", name: "Sweet Corn", price: 0.99, category: "veg", tier: 1, stockStatus: 'out' },
+    { id: "t8", name: "Paneer", price: 1.99, category: "veg", tier: 3, stockStatus: 'available' },
+    { id: "t9", name: "Red Paprika", price: 1.29, category: "veg", tier: 2, stockStatus: 'available' },
+    { id: "t10", name: "Pepper Barbecue Chicken", price: 2.49, category: "non-veg", tier: 3, stockStatus: 'available' },
+    { id: "t11", name: "Peri-Peri Chicken", price: 2.49, category: "non-veg", tier: 3, stockStatus: 'available' },
+    { id: "t12", name: "Grilled Chicken Rasher", price: 2.49, category: "non-veg", tier: 3, stockStatus: 'available' },
+    { id: "t13", name: "Chicken Sausage", price: 1.99, category: "non-veg", tier: 2, stockStatus: 'low' },
+    { id: "t14", name: "Chicken Tikka", price: 2.49, category: "non-veg", tier: 3, stockStatus: 'available' },
+    { id: "t15", name: "Chicken Keema", price: 2.49, category: "non-veg", tier: 3, stockStatus: 'available' },
+];
+
+export const ORDER_TEMPLATES: OrderTemplate[] = [
+    {
+        id: "family-feast",
+        name: "Typically Family Order",
+        description: "2 Medium Pizzas + 2 Sides + 1.25L Pepsi",
+        price: 34.99,
+        items: [
+            { productId: "v1", customization: { sizeId: "medium", toppings: [{ toppingId: "t1", side: "Full", quantity: 1 }] } },
+            { productId: "v2", customization: { sizeId: "medium" } },
+            { productId: "s1" },
+            { productId: "s1" },
+            { productId: "d1" }
+        ]
+    },
+    {
+        id: "duo-deal",
+        name: "Duo Rapid Pack",
+        description: "2 Regular Pizzas + Garlic Bread",
+        price: 19.99,
+        items: [
+            { productId: "v1", customization: { sizeId: "regular" } },
+            { productId: "v2", customization: { sizeId: "regular" } },
+            { productId: "s1" }
+        ]
+    }
 ];
 
 export const PRODUCTS: Product[] = [
-    // Food
     {
-        id: "f1",
-        name: "Classic Burger",
-        category: "food",
-        price: 8.99,
-        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60",
-        description: "Juicy beef patty with fresh lettuce, tomato, and cheese.",
-        stock: 50,
-    },
-    {
-        id: "f2",
-        name: "Margherita Pizza",
-        category: "food",
-        price: 12.50,
-        image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=60",
-        description: "Traditional Italian pizza with basil and mozzarella.",
-        stock: 30,
-    },
-    {
-        id: "f3",
-        name: "Caesar Salad",
-        category: "food",
-        price: 7.95,
-        image: "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500&auto=format&fit=crop&q=60",
-        description: "Crisp romaine lettuce with parmesan and croutons.",
-        stock: 25,
-    },
-    {
-        id: "f4",
-        name: "Spicy Tacos (3pcs)",
-        category: "food",
+        id: "v1",
+        name: "Margherita",
+        category: "veg-pizza",
         price: 9.99,
-        image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=500&auto=format&fit=crop&q=60",
-        description: "Authentic Mexican tacos with spicy salsa.",
-        stock: 40,
+        image: "https://images.unsplash.com/photo-1574071318508-1cdbad80ad50?w=500&auto=format&fit=crop&q=60",
+        description: "Classic delight",
+        stock: 999,
+        stockStatus: 'available',
+        prepTimeMin: 12,
+        isCustomizable: true,
+        baseIngredients: ["t1", "t2"]
     },
     {
-        id: "f5",
-        name: "Sushi Platter",
-        category: "food",
-        price: 18.00,
-        image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&auto=format&fit=crop&q=60",
-        description: "Assorted fresh sushi rolls.",
-        stock: 15,
-    },
-
-    // Beverages
-    {
-        id: "b1",
-        name: "Iced Coffee",
-        category: "beverages",
-        price: 4.50,
-        image: "https://images.unsplash.com/photo-1517701604599-bb29b5c5090c?w=500&auto=format&fit=crop&q=60",
-        description: "Cold brewed coffee with milk and ice.",
-        stock: 100,
-    },
-    {
-        id: "b2",
-        name: "Berry Smoothie",
-        category: "beverages",
-        price: 5.95,
-        image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=500&auto=format&fit=crop&q=60",
-        description: "Fresh mixed berries blended with yogurt.",
-        stock: 45,
-    },
-    {
-        id: "b3",
-        name: "Green Tea",
-        category: "beverages",
-        price: 3.00,
-        image: "https://images.unsplash.com/photo-1627435601361-ec25481c3db6?w=500&auto=format&fit=crop&q=60",
-        description: "Hot organic green tea.",
-        stock: 80,
-    },
-    {
-        id: "b4",
-        name: "Cola",
-        category: "beverages",
-        price: 2.50,
-        image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&auto=format&fit=crop&q=60",
-        description: "Refreshing carbonated soft drink.",
-        stock: 120,
-    },
-    {
-        id: "b5",
-        name: "Fresh Orange Juice",
-        category: "beverages",
-        price: 4.75,
-        image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500&auto=format&fit=crop&q=60",
-        description: "Freshly squeezed oranges.",
-        stock: 60,
-    },
-
-    // Electronics
-    {
-        id: "e1",
-        name: "Wireless Headphones",
-        category: "electronics",
-        price: 89.99,
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60",
-        description: "High-quality noise cancelling headphones.",
-        stock: 12,
-    },
-    {
-        id: "e2",
-        name: "USB-C Cable",
-        category: "electronics",
-        price: 12.99,
-        image: "https://images.unsplash.com/photo-1585800473941-ad6b92df7869?w=500&auto=format&fit=crop&q=60",
-        description: "Durable braided fast charging cable.",
-        stock: 200,
-    },
-    {
-        id: "e3",
-        name: "Power Bank",
-        category: "electronics",
-        price: 29.95,
-        image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=500&auto=format&fit=crop&q=60",
-        description: "10000mAh portable charger.",
-        stock: 35,
-    },
-    {
-        id: "e4",
-        name: "Bluetooth Speaker",
-        category: "electronics",
-        price: 45.00,
-        image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&auto=format&fit=crop&q=60",
-        description: "Waterproof portable speaker.",
-        stock: 18,
-    },
-    {
-        id: "e5",
-        name: "Phone Case",
-        category: "electronics",
-        price: 15.00,
-        image: "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=500&auto=format&fit=crop&q=60",
-        description: "Protective silicone case.",
-        stock: 50,
-    },
-
-    // Clothing
-    {
-        id: "c1",
-        name: "Cotton T-Shirt",
-        category: "clothing",
-        price: 19.99,
-        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60",
-        description: "Basic white cotton t-shirt.",
-        stock: 150,
-    },
-    {
-        id: "c2",
-        name: "Denim Jeans",
-        category: "clothing",
-        price: 49.50,
-        image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=500&auto=format&fit=crop&q=60",
-        description: "Classic blue denim jeans.",
-        stock: 40,
-    },
-    {
-        id: "c3",
-        name: "Sneakers",
-        category: "clothing",
-        price: 65.00,
-        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60",
-        description: "Comfortable casual sneakers.",
-        stock: 25,
-    },
-    {
-        id: "c4",
-        name: "Baseball Cap",
-        category: "clothing",
+        id: "v2",
+        name: "Farmhouse",
+        category: "veg-pizza",
         price: 14.99,
-        image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500&auto=format&fit=crop&q=60",
-        description: "Adjustable cotton cap.",
-        stock: 60,
+        image: "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=60",
+        description: "Combination of onion, capsicum, tomato & mushroom",
+        stock: 999,
+        stockStatus: 'available',
+        prepTimeMin: 15,
+        isCustomizable: true,
+        baseIngredients: ["t1", "t2", "t3", "t4"]
     },
     {
-        id: "c5",
-        name: "Hoodie",
-        category: "clothing",
-        price: 35.00,
-        image: "https://images.unsplash.com/photo-1556906781-9a412961d28c?w=500&auto=format&fit=crop&q=60",
-        description: "Warm fleece hoodie.",
-        stock: 30,
+        id: "nv1",
+        name: "Chicken Supreme",
+        category: "non-veg-pizza",
+        price: 18.99,
+        image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&auto=format&fit=crop&q=60",
+        description: "Loaded with chicken",
+        stock: 999,
+        stockStatus: 'available',
+        prepTimeMin: 18,
+        isCustomizable: true
     },
+    {
+        id: "s1",
+        name: "Garlic Breadsticks",
+        category: "sides",
+        price: 4.99,
+        image: "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=60",
+        description: "Freshly baked",
+        stock: 999,
+        stockStatus: 'available',
+        prepTimeMin: 8
+    },
+    {
+        id: "d1",
+        name: "Pepsi 500ml",
+        category: "beverages",
+        price: 1.99,
+        image: "https://images.unsplash.com/photo-1629203851022-39c6f21c0192?w=500&auto=format&fit=crop&q=60",
+        description: "Sparkling cola",
+        stock: 999,
+        stockStatus: 'available',
+        prepTimeMin: 1
+    }
 ];
+
+export const PRESETS = [
+    { id: "extra-cheese", name: "Cheese Lover", action: { cheeseQty: 2 } },
+    { id: "no-onion", name: "No Onion", action: { removeToppings: ["t1"] } },
+    { id: "spicy-special", name: "Spicy Special", action: { sauceId: "spicy", addToppings: ["t6", "t9"] } },
+];
+
+export const SPECIAL_INSTRUCTIONS = [
+    "No cut", "Well baked", "Double bag", "Extra napkins", "Contactless"
+];
+
+export const DEFAULT_PIZZA_CUSTOMIZATION = {
+    sizeId: "medium",
+    crustId: "hand-tossed",
+    sauce: { id: "classic", side: "Full", quantity: 1, isDrizzle: false },
+    cheese: { id: "mozzarella", side: "Full", quantity: 1 },
+    toppings: [],
+    cooking: { bake: "Normal", cut: "Triangle", slices: 6 },
+    instructions: []
+};
